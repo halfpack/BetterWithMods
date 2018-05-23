@@ -49,19 +49,10 @@ import java.util.ArrayList;
 
 public class Thaumcraft extends CompatFeature {
 
-    public Thaumcraft() {
-        super("thaumcraft");
-    }
-
     public static boolean changeStart;
 
-    @Override
-    public void setupConfig() {
-        changeStart = loadPropBool("Change Thaumcraft Start", "Due to HCBeds stopping sleeping, Thaumcraft can not be started the normal way. This changes it to only require you to right click on a bed to have the dream", true);
-        if(changeStart) {
-            MinecraftForge.EVENT_BUS.register(new StartChanges());
-        }
-
+    public Thaumcraft() {
+        super("thaumcraft");
     }
 
     private static AspectList getMini(ItemStack stack) {
@@ -74,18 +65,17 @@ public class Thaumcraft extends CompatFeature {
         return list.copy();
     }
 
-
     public static void registerAnvilRecipeAspects() {
         ArrayList<String> history = new ArrayList<>();
         for (IRecipe recipe : AnvilCraftingManager.ANVIL_CRAFTING) {
 
             AspectList tmp = null;
 
-            Method method = ReflectionHelper.findMethod(ThaumcraftCraftingManager.class, "getAspectsFromIngredients", "getAspectsFromIngredients", NonNullList.class, ItemStack.class, ArrayList.class);
+            Method method = ReflectionHelper.findMethod(ThaumcraftCraftingManager.class, "getAspectsFromIngredients", "getAspectsFromIngredients", NonNullList.class, ItemStack.class, IRecipe.class, ArrayList.class);
             method.setAccessible(true);
 
             try {
-                tmp = (AspectList) method.invoke(null, recipe.getIngredients(), recipe.getRecipeOutput(), history);
+                tmp = (AspectList) method.invoke(null, recipe.getIngredients(), recipe.getRecipeOutput(), recipe, history);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
@@ -94,6 +84,15 @@ public class Thaumcraft extends CompatFeature {
         }
         ThaumcraftApi.registerObjectTag(new ItemStack(BWMBlocks.STEEL_BROKEN_GEARBOX), new AspectList(new ItemStack(BWMBlocks.STEEL_GEARBOX)));
         ThaumcraftApi.registerComplexObjectTag(BlockAesthetic.getStack(BlockAesthetic.EnumType.CHOPBLOCKBLOOD), new AspectList(BlockAesthetic.getStack(BlockAesthetic.EnumType.CHOPBLOCK)).add(Aspect.DEATH, 5));
+    }
+
+    @Override
+    public void setupConfig() {
+        changeStart = loadPropBool("Change Thaumcraft Start", "Due to HCBeds stopping sleeping, Thaumcraft can not be started the normal way. This changes it to only require you to right click on a bed to have the dream", true);
+        if (changeStart) {
+            MinecraftForge.EVENT_BUS.register(new StartChanges());
+        }
+
     }
 
     @Override
@@ -121,8 +120,8 @@ public class Thaumcraft extends CompatFeature {
         AspectList tmp = new AspectList();
         for (ItemStack stack : stacks) {
             AspectList l = new AspectList(stack);
-            for(int i = 0; i < stack.getCount();i++);
-                tmp.add(l);
+            for (int i = 0; i < stack.getCount(); i++) ;
+            tmp.add(l);
         }
         return tmp;
     }
@@ -250,11 +249,11 @@ public class Thaumcraft extends CompatFeature {
 
         ThaumcraftApi.registerObjectTag(BlockAesthetic.getStack(BlockAesthetic.EnumType.NETHERCLAY), new AspectList(new ItemStack(BWMBlocks.NETHER_CLAY)).add(Aspect.FIRE, 2));
         ThaumcraftApi.registerObjectTag(BlockAesthetic.getStack(BlockAesthetic.EnumType.PADDING), fromItemStacks(ItemMaterial.getMaterial(ItemMaterial.EnumMaterial.PADDING, 9)));
-        ThaumcraftApi.registerObjectTag(BlockAesthetic.getStack(BlockAesthetic.EnumType.WHITECOBBLE), new AspectList().add(Aspect.EARTH, 5).add(Aspect.ENTROPY,1));
+        ThaumcraftApi.registerObjectTag(BlockAesthetic.getStack(BlockAesthetic.EnumType.WHITECOBBLE), new AspectList().add(Aspect.EARTH, 5).add(Aspect.ENTROPY, 1));
         ThaumcraftApi.registerObjectTag(BlockAesthetic.getStack(BlockAesthetic.EnumType.WHITESTONE), new AspectList().add(Aspect.EARTH, 5));
 
-        ThaumcraftApi.registerObjectTag(new ItemStack(BWMItems.FERTILIZER), new AspectList().add(Aspect.LIFE,5).add(Aspect.UNDEAD,1).add(Aspect.PLANT,1));
-        ThaumcraftApi.registerObjectTag(new ItemStack(BWMItems.FERTILIZER), new AspectList().add(Aspect.LIFE,5).add(Aspect.UNDEAD,1).add(Aspect.PLANT,1));
+        ThaumcraftApi.registerObjectTag(new ItemStack(BWMItems.FERTILIZER), new AspectList().add(Aspect.LIFE, 5).add(Aspect.UNDEAD, 1).add(Aspect.PLANT, 1));
+        ThaumcraftApi.registerObjectTag(new ItemStack(BWMItems.FERTILIZER), new AspectList().add(Aspect.LIFE, 5).add(Aspect.UNDEAD, 1).add(Aspect.PLANT, 1));
 
         ThaumcraftApi.registerObjectTag(ItemMaterial.getMaterial(ItemMaterial.EnumMaterial.ENDER_SLAG), new AspectList().add(Aspect.DARKNESS, 5));
         ThaumcraftApi.registerObjectTag(ItemMaterial.getMaterial(ItemMaterial.EnumMaterial.SOUL_FLUX), new AspectList().add(Aspect.MAGIC, 5));
@@ -263,7 +262,7 @@ public class Thaumcraft extends CompatFeature {
         ThaumcraftApi.registerObjectTag(ItemMaterial.getMaterial(ItemMaterial.EnumMaterial.NITER), new AspectList().add(Aspect.ENTROPY, 5));
         ThaumcraftApi.registerObjectTag(ItemMaterial.getMaterial(ItemMaterial.EnumMaterial.FUSE), fromItemStacks(new ItemStack(Items.GUNPOWDER), new ItemStack(Items.STRING)));
         ThaumcraftApi.registerObjectTag(ItemMaterial.getMaterial(ItemMaterial.EnumMaterial.DIAMOND_NUGGET), new AspectList().add(Aspect.METAL, 1).add(Aspect.CRYSTAL, 1).add(Aspect.DESIRE, 1));
-        ThaumcraftApi.registerObjectTag(new ItemStack(BWMItems.KIBBLE), new AspectList().add(Aspect.LIFE,10).add(Aspect.MAN,10).add(Aspect.ENTROPY,10).add(Aspect.SENSES, 5).add(Aspect.ENERGY,1));
+        ThaumcraftApi.registerObjectTag(new ItemStack(BWMItems.KIBBLE), new AspectList().add(Aspect.LIFE, 10).add(Aspect.MAN, 10).add(Aspect.ENTROPY, 10).add(Aspect.SENSES, 5).add(Aspect.ENERGY, 1));
 
         ThaumcraftApi.registerComplexObjectTag(new ItemStack(BWMBlocks.SAW), new AspectList().add(Aspect.TRAP, 5));
         ThaumcraftApi.registerComplexObjectTag(new ItemStack(BWMBlocks.DETECTOR), new AspectList().add(Aspect.SENSES, 5));
@@ -311,13 +310,12 @@ public class Thaumcraft extends CompatFeature {
         ThaumcraftApi.registerObjectTag("blockUrn", new AspectList(BlockUnfiredPottery.getStack(BlockUnfiredPottery.EnumType.URN)).add(Aspect.FIRE, 1));
         ThaumcraftApi.registerObjectTag("blockSoulUrn", new AspectList(BlockUnfiredPottery.getStack(BlockUnfiredPottery.EnumType.URN)).add(Aspect.FIRE, 1).add(Aspect.SOUL, 16));
         ThaumcraftApi.registerObjectTag(BlockCookingPot.getStack(BlockCookingPot.EnumType.CRUCIBLE), new AspectList(BlockUnfiredPottery.getStack(BlockUnfiredPottery.EnumType.CRUCIBLE)).add(Aspect.FIRE, 1).add(Aspect.VOID, 10));
-        ThaumcraftApi.registerObjectTag(BlockCookingPot.getStack(BlockCookingPot.EnumType.DRAGONVESSEL), new AspectList().add(Aspect.MIND, 10).add(Aspect.ELDRITCH, 10).add(Aspect.MAGIC,10).add(Aspect.VOID, 10));
+        ThaumcraftApi.registerObjectTag(BlockCookingPot.getStack(BlockCookingPot.EnumType.DRAGONVESSEL), new AspectList().add(Aspect.MIND, 10).add(Aspect.ELDRITCH, 10).add(Aspect.MAGIC, 10).add(Aspect.VOID, 10));
 
-        ThaumcraftApi.registerObjectTag("slats", new AspectList().add(Aspect.PLANT, 1).add(Aspect.CRAFT,1));
-        ThaumcraftApi.registerObjectTag("grates", new AspectList().add(Aspect.PLANT, 1).add(Aspect.CRAFT,1));
-        ThaumcraftApi.registerObjectTag("blockWoodTable", new AspectList().add(Aspect.PLANT, 1).add(Aspect.CRAFT,1));
-        ThaumcraftApi.registerObjectTag("blockWoodBench", new AspectList().add(Aspect.PLANT, 1).add(Aspect.CRAFT,1));
-
+        ThaumcraftApi.registerObjectTag("slats", new AspectList().add(Aspect.PLANT, 1).add(Aspect.CRAFT, 1));
+        ThaumcraftApi.registerObjectTag("grates", new AspectList().add(Aspect.PLANT, 1).add(Aspect.CRAFT, 1));
+        ThaumcraftApi.registerObjectTag("blockWoodTable", new AspectList().add(Aspect.PLANT, 1).add(Aspect.CRAFT, 1));
+        ThaumcraftApi.registerObjectTag("blockWoodBench", new AspectList().add(Aspect.PLANT, 1).add(Aspect.CRAFT, 1));
 
 
         //Planters
@@ -425,11 +423,11 @@ public class Thaumcraft extends CompatFeature {
 
     public static class StartChanges {
         @SubscribeEvent
-        public void  onAttemptSleep(PlayerSleepInBedEvent event) {
+        public void onAttemptSleep(PlayerSleepInBedEvent event) {
             IPlayerKnowledge knowledge = ThaumcraftCapabilities.getKnowledge(event.getEntityPlayer());
             if (event.getEntityPlayer() != null && !event.getEntityPlayer().world.isRemote && knowledge.isResearchKnown("!gotcrystals") && !knowledge.isResearchKnown("!gotdream")) {
                 knowledge.addResearch("!gotdream");
-                knowledge.sync((EntityPlayerMP)event.getEntityPlayer());
+                knowledge.sync((EntityPlayerMP) event.getEntityPlayer());
                 ItemStack book = ConfigItems.startBook.copy();
                 book.getTagCompound().setString("author", event.getEntityPlayer().getName());
                 if (!event.getEntityPlayer().inventory.addItemStackToInventory(book)) {
@@ -438,7 +436,8 @@ public class Thaumcraft extends CompatFeature {
 
                 try {
                     event.getEntityPlayer().sendMessage(new TextComponentString(TextFormatting.DARK_PURPLE + I18n.translateToLocal("bwm.got.feverdream")));
-                } catch (Exception ignore) { }
+                } catch (Exception ignore) {
+                }
             }
         }
     }
